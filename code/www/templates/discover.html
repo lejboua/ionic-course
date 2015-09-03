@@ -2,6 +2,9 @@
   <ion-content scroll="false">
 
 
+    <div class="img-lookahead">
+        <img ng-src="{{ nextAlbumImage() }}" />
+    </div>
     <div class="list card current-song"
         ng-class="{skipped: currentSong.rated == false,
                    favorited: currentSong.rated == true}"

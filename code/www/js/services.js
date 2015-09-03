@@ -18,6 +18,70 @@ angular.module('songhop.services', [])
     return o;
 })
 
+// injecting $q to use promises
+.factory ('Recommendations', function($http, $q, SERVER) {
+    var media;
+    var o = {
+        queue: []
+    };
+
+    o.init = function() {
+        if (o.queue.length === 0) {
+            return o.getNextSongs();
+        }
+        else {
+            return o.playCurrentSong();
+        }
+    };
+
+    o.playCurrentSong = function() {
+        // we are creating a promise
+        var defer = $q.defer();
+
+        media = new Audio(o.queue[0].preview_url);
+        console.log("playing ", o.queue[0].preview_url);
+
+        // when song loaded (using the Audio object)
+        // resolve the promise to let the controller know
+        media.addEventListener("loadeddata", function() {
+            defer.resolve();
+        });
+
+        media.play();
+
+        return defer.promise;
+    };
+
+    // used when switching to favorites tab
+    o.haltAudio = function() {
+        if (media) media.pause();
+    }
+
+    o.getNextSongs = function() {
+        return $http({
+            method: 'GET',
+            url: SERVER.url + '/recommendations'
+        }).success(function(data) {
+            o.queue = o.queue.concat(data);
+        });
+    };
+
+    o.nextSong = function() {
+        // pop the index 0 song
+        o.queue.shift();
+
+        // end the song
+        // (the 0 song was playing)
+        o.haltAudio();
+
+        if (o.queue.length <= 3) {
+            o.getNextSongs();
+        }
+    };
+
+    return o;
+})
+
 .service ('UserService', function UserFactory() {
     this.favorites = [];
     this.addSongToFavorites = function(song) {
