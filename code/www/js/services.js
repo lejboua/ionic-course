@@ -27,11 +27,15 @@ angular.module('songhop.services', [])
 
     o.init = function() {
         if (o.queue.length === 0) {
+            // also returns a promise
             return o.getNextSongs();
         }
         else {
+            // returns a promise
             return o.playCurrentSong();
         }
+        // .init always returns a promise,
+        // so o.init() has always a .then() method
     };
 
     o.playCurrentSong = function() {
